@@ -64,9 +64,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button Content="חזרה" Padding="16,4" Command="{Binding BackCommand}"
+            <Button Style="{StaticResource DangerButton}" Content="חזרה" Padding="16,4" Command="{Binding BackCommand}"
                     ToolTip="חזרה למסך הראשי כדי לתקן פרטים" />
-            <Button Grid.Column="2" Content="פתח הודעת דואר חדשה" Padding="16,4"
+            <Button Style="{StaticResource PrimaryButton}" Grid.Column="2" Content="פתח הודעת דואר חדשה" Padding="16,4"
                     Command="{Binding CreateOutlookDraftCommand}"
                     ToolTip="פותח הודעה חדשה ב-Outlook לבדיקה. ההודעה אינה נשלחת אוטומטית." />
         </Grid>

@@ -75,13 +75,15 @@ public sealed class CoreTests
 
     [Theory]
     [InlineData("", "x", true, "שם התצוגה (Display Name) חסר.")]
-    [InlineData("x", " ", true, "שם הכניסה (User Logon Name) חסר.")]
+    [InlineData("x", "", true, "למשתמש שנבחר לא מוגדר extensionAttribute1 ב-Active Directory.")]
+    [InlineData("x", "12\n3", true, "תעודת הזהות (extensionAttribute1) מכילה תווים לא תקינים.")]
+    [InlineData("x", " ", true, "למשתמש שנבחר לא מוגדר extensionAttribute1 ב-Active Directory.")]
     [InlineData("x", "x", false, "החשבון מושבת.")]
     [InlineData("x", "x", null, "לא ניתן לאמת את מצב החשבון.")]
     [InlineData("x\r\ny", "x", true, "שם התצוגה (Display Name) מכיל תווים לא תקינים.")]
-    public async Task Invalid_users_are_rejected(string name, string logon, bool? enabled, string expected)
+    public async Task Invalid_users_are_rejected(string name, string nationalId, bool? enabled, string expected)
     {
-        var user = Sample.User(name, logon, enabled);
+        var user = Sample.User(name, nationalId, enabled);
         var result = await Validator(new FakeDirectory { Users = [user] }).ValidateAsync([user], default);
         Assert.False(result.IsValid);
         Assert.Equal([expected], result.Errors);

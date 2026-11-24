@@ -20,7 +20,8 @@ Files), they go to `%LOCALAPPDATA%\DigitalCertHelper\Logs`. To keep them beside 
 - [ ] The windows open right-to-left, and every label, button and message is in Hebrew
 - [ ] The file picker shows all files, and a non-certificate file (for example a PDF) can be attached
 - [ ] Suggestions appear for Hebrew and English partial names
-- [ ] The User Logon Name shown is the value required as תעודת זהות
+- [ ] The ID shown for a user (column תעודת זהות) and in the email is that user's extensionAttribute1
+- [ ] A user whose extensionAttribute1 is empty is refused with a clear message
 - [ ] A disabled account is refused
 - [ ] The draft has the correct recipient, subject, right-to-left body and attachment
 - [ ] 'פתח הודעת דואר חדשה' opens a new message in Outlook both when Outlook is already running and when it is closed,

@@ -7,11 +7,11 @@
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <!-- "Display Name (User Logon Name)"; the logon name is always left-to-right. -->
+        <!-- "Display Name (National ID)"; the ID is always left-to-right. -->
         <DataTemplate x:Key="UserTemplate">
             <StackPanel Orientation="Horizontal" AutomationProperties.Name="{Binding DisplayName}">
                 <TextBlock Text="{Binding DisplayName}" />
-                <TextBlock Text="{Binding UserLogonName, StringFormat=({0})}" FlowDirection="LeftToRight" Margin="6,0,0,0" />
+                <TextBlock Text="{Binding NationalId, StringFormat=({0})}" FlowDirection="LeftToRight" Margin="6,0,0,0" />
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
@@ -36,7 +36,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Button Grid.RowSpan="2" Content="בחר קובץ" Padding="12,4" Margin="0,0,12,0" VerticalAlignment="Top"
+                <Button Style="{StaticResource PrimaryButton}" Grid.RowSpan="2" Content="בחר קובץ" Padding="12,4" Margin="0,0,12,0" VerticalAlignment="Top"
                         Command="{Binding SelectCertificateCommand}"
                         ToolTip="בחירת הקובץ שיצורף להודעה (כל סוג קובץ)" />
                 <TextBlock Grid.Column="1" Text="שם הקובץ:" Margin="0,0,8,4" />
@@ -74,7 +74,7 @@
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              PreviewKeyDown="OnSearchBoxKeyDown"
                              ToolTip="הקלד לפחות 3 תווים כדי לקבל הצעות, או לחץ על 'חיפוש'" />
-                    <Button Grid.Column="1" Content="חיפוש" Padding="12,3" Margin="8,0,0,0"
+                    <Button Style="{StaticResource PrimaryButton}" Grid.Column="1" Content="חיפוש" Padding="12,3" Margin="8,0,0,0"
                             Command="{Binding SearchCommand}" ToolTip="חיפוש משתמש ב-Active Directory" />
                     <Popup StaysOpen="False" Placement="Bottom" PlacementTarget="{Binding ElementName=SearchBox}"
                            Width="{Binding ActualWidth, ElementName=SearchBox}"
@@ -95,7 +95,7 @@
                           MouseDoubleClick="OnGridDoubleClick" PreviewKeyDown="OnGridKeyDown">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="שם תצוגה" Binding="{Binding DisplayName}" Width="2*" />
-                        <DataGridTextColumn Header="שם כניסה" Binding="{Binding UserLogonName}" Width="*" />
+                        <DataGridTextColumn Header="תעודת זהות" Binding="{Binding NationalId}" Width="*" />
                         <DataGridTextColumn Header="מחלקה" Binding="{Binding Department}" Width="1.5*" />
                     </DataGrid.Columns>
                 </DataGrid>
@@ -109,7 +109,7 @@
                                Visibility="{Binding HasSelectedUser, Converter={StaticResource BoolToVisibility}}" />
                     <ContentControl Grid.Column="1" Content="{Binding SelectedUser}" ContentTemplate="{StaticResource UserTemplate}"
                                     VerticalAlignment="Center" Focusable="False" />
-                    <Button Grid.Column="2" Content="בחר משתמש" Padding="12,3" Command="{Binding SelectUserCommand}"
+                    <Button Style="{StaticResource PrimaryButton}" Grid.Column="2" Content="בחר משתמש" Padding="12,3" Command="{Binding SelectUserCommand}"
                             ToolTip="בחירת המשתמש המסומן בטבלה (אפשר גם ללחוץ פעמיים על השורה)" />
                 </Grid>
             </Grid>
@@ -121,9 +121,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button Content="בקשה חדשה" Padding="12,4" Command="{Binding NewRequestCommand}"
+            <Button Style="{StaticResource DangerButton}" Content="בקשה חדשה" Padding="12,4" Command="{Binding NewRequestCommand}"
                     ToolTip="ניקוי הנתונים והתחלה מחדש" />
-            <Button Grid.Column="2" Content="תצוגה מקדימה" Padding="16,4" Command="{Binding PreviewEmailCommand}"
+            <Button Style="{StaticResource PrimaryButton}" Grid.Column="2" Content="תצוגה מקדימה" Padding="16,4" Command="{Binding PreviewEmailCommand}"
                     ToolTip="הצגת ההודעה לבדיקה לפני פתיחתה ב-Outlook" />
         </Grid>
 

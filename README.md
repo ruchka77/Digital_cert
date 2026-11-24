@@ -56,8 +56,9 @@ file cannot redirect the email. Earlier versions had a `Certificate:AllowedExten
 
 ## Behavior notes
 
-- **User Logon Name** is the `sAMAccountName` attribute (as in `mberger`). It is printed in the email as
-  תעודת זהות, so it must hold the ID number. To use another attribute, change `ActiveDirectoryService`.
+- The user identifier is the national ID (תעודת זהות), read from the `extensionAttribute1` attribute in Active Directory.
+  It is shown in the results, the selected-user line and the email. `sAMAccountName` is not used. A user whose
+  `extensionAttribute1` is empty is rejected with a message, and no request can be created.
 - A user whose enabled/disabled state cannot be read fails validation.
 - `.pfx`/`.p12` files and files containing a PEM private key show a warning, because they can disclose a private key.
 - Outlook may warn about, and recipients' mail systems may block, some attachment types such as `.cer`, `.crt` and `.exe`.

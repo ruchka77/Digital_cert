@@ -15,7 +15,7 @@ public sealed class ActiveDirectoryService(DirectoryOptions options, ILogger<Act
     private const int AccountDisabledFlag = 0x2;
 
     private static readonly string[] Attributes =
-        ["objectGUID", "displayName", "sAMAccountName", "department", "userAccountControl"];
+        ["objectGUID", "displayName", "extensionAttribute1", "department", "userAccountControl"];
 
     public async Task<DirectorySearchResult> SearchAsync(
         string term, int maxResults, CancellationToken cancellationToken)
@@ -128,7 +128,7 @@ public sealed class ActiveDirectoryService(DirectoryOptions options, ILogger<Act
         return new DirectoryUser(
             new Guid(objectId),
             GetText(result, "displayName"),
-            GetText(result, "sAMAccountName"),
+            GetText(result, "extensionAttribute1"), // the national ID; sAMAccountName is not used
             GetText(result, "department"),
             isEnabled);
     }

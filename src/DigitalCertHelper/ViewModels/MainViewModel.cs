@@ -244,8 +244,8 @@ public sealed partial class MainViewModel(
             }
 
             var displayName = user.DisplayName;
-            var userLogonName = user.UserLogonName;
-            var draft = EmailTemplate.Create(displayName, userLogonName, certificate);
+            var nationalId = user.NationalId;
+            var draft = EmailTemplate.Create(displayName, nationalId, certificate);
 
             logger.LogInformation("Email preview opened for {ObjectId}", user.ObjectId);
             var created = dialogs.ShowEmailPreview(draft);

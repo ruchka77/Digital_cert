@@ -25,7 +25,15 @@ public sealed class UserValidationService(IDirectoryService directory, ILogger<U
 
         var errors = new List<string>();
         CheckText(user.DisplayName, "שם התצוגה (Display Name)", errors);
-        CheckText(user.UserLogonName, "שם הכניסה (User Logon Name)", errors);
+        if (string.IsNullOrWhiteSpace(user.NationalId))
+        {
+            errors.Add("למשתמש שנבחר לא מוגדר extensionAttribute1 ב-Active Directory.");
+        }
+        else if (user.NationalId.Any(char.IsControl))
+        {
+            errors.Add("תעודת הזהות (extensionAttribute1) מכילה תווים לא תקינים.");
+        }
+
         if (user.IsEnabled is null)
         {
             errors.Add("לא ניתן לאמת את מצב החשבון.");

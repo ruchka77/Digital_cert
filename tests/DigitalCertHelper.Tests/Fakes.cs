@@ -7,8 +7,8 @@ internal static class Sample
 {
     public static readonly CertificateFile Certificate = new(@"C:\certs\a.cer", false);
 
-    public static DirectoryUser User(string name = "מיכאל ברגר", string logon = "012345678", bool? enabled = true) =>
-        new(Guid.NewGuid(), name, logon, "IT", enabled);
+    public static DirectoryUser User(string name = "מיכאל ברגר", string nationalId = "012345678", bool? enabled = true) =>
+        new(Guid.NewGuid(), name, nationalId, "IT", enabled);
 }
 
 internal sealed class FakeDirectory : IDirectoryService
