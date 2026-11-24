@@ -1,0 +1,120 @@
+<Window x:Class="DigitalCertHelper.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Digital Certificate Renewal Helper"
+        Width="880" Height="760" MinWidth="640" MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        Background="#F2F4F7" FontFamily="Segoe UI" FontSize="13">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom" Padding="12,4">
+            <StatusBarItem>
+                <TextBlock Text="{Binding Status}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <ProgressBar IsIndeterminate="True" Width="110" Height="12"
+                             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid Margin="20,16,20,8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="1. Certificate" Style="{StaticResource Heading}" />
+                    <DockPanel>
+                        <Button Content="Select Certificate" Command="{Binding SelectCertificateCommand}"
+                                VerticalAlignment="Top" Margin="0,0,16,0" />
+                        <Grid Visibility="{Binding HasCertificate, Converter={StaticResource BoolToVisibility}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="File name" Style="{StaticResource FieldLabel}" />
+                            <TextBox Grid.Column="1" Style="{StaticResource ReadOnlyField}"
+                                     Text="{Binding Certificate.FileName, Mode=OneWay}"
+                                     AutomationProperties.Name="Certificate file name" />
+                            <TextBlock Grid.Row="1" Text="Full path" Style="{StaticResource FieldLabel}" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ReadOnlyField}"
+                                     Text="{Binding Certificate.FullPath, Mode=OneWay}"
+                                     AutomationProperties.Name="Certificate full path" />
+                        </Grid>
+                    </DockPanel>
+                    <Border Style="{StaticResource WarningPanel}"
+                            Visibility="{Binding Certificate.MayContainPrivateKey, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed, TargetNullValue=Collapsed}">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="Warning: this file may contain a private key. Make sure it is approved for sending by email." />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Style="{StaticResource Card}">
+                <DockPanel IsEnabled="{Binding IsSearchEnabled}">
+                    <TextBlock DockPanel.Dock="Top" Text="2. User" Style="{StaticResource Heading}" />
+                    <Label DockPanel.Dock="Top" Content="_Enter user first name or last name"
+                           Target="{Binding ElementName=SearchBox}" Padding="0,0,0,5" />
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <Button DockPanel.Dock="Right" Content="Search" Command="{Binding SearchCommand}" Margin="8,0,0,0" />
+                        <TextBox x:Name="SearchBox" MaxLength="64" Padding="6,5" VerticalContentAlignment="Center"
+                                 AutomationProperties.AutomationId="SearchBox"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewKeyDown="OnSearchBoxKeyDown" />
+                    </DockPanel>
+                    <Popup DockPanel.Dock="Top" AllowsTransparency="True" StaysOpen="False"
+                           Placement="Bottom" PlacementTarget="{Binding ElementName=SearchBox}"
+                           Width="{Binding ActualWidth, ElementName=SearchBox}"
+                           IsOpen="{Binding IsSuggestionsOpen, Mode=TwoWay}">
+                        <ListBox x:Name="SuggestionList" MaxHeight="330" ItemsSource="{Binding Suggestions}"
+                                 DisplayMemberPath="SuggestionText" FontFamily="Segoe UI" FontSize="13"
+                                 AutomationProperties.Name="User suggestions"
+                                 PreviewKeyDown="OnSuggestionKeyDown"
+                                 PreviewMouseLeftButtonUp="OnSuggestionClick" />
+                    </Popup>
+                    <Button DockPanel.Dock="Bottom" Content="Select User" Command="{Binding SelectUserCommand}"
+                            HorizontalAlignment="Right" Margin="0,10,0,0" />
+                    <DataGrid ItemsSource="{Binding Results}"
+                              SelectedItem="{Binding HighlightedUser, Mode=TwoWay}"
+                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                              SelectionUnit="FullRow" CanUserSortColumns="True" HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E3E7EC"
+                              Background="White" RowHeight="28" MinHeight="90"
+                              AutomationProperties.Name="Search results"
+                              MouseDoubleClick="OnGridDoubleClick" PreviewKeyDown="OnGridKeyDown">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="2*" />
+                            <DataGridTextColumn Header="User Logon Name" Binding="{Binding UserLogonName}" Width="*" />
+                            <DataGridTextColumn Header="Department" Binding="{Binding Department}" Width="1.5*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource Card}"
+                    Visibility="{Binding HasSelectedUser, Converter={StaticResource BoolToVisibility}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Selected user" FontWeight="SemiBold" Margin="0,0,16,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding SelectedUser.SuggestionText}" TextWrapping="Wrap" />
+                </Grid>
+            </Border>
+
+            <DockPanel Grid.Row="3" LastChildFill="False" Margin="0,0,0,4">
+                <Button Content="New Request" Command="{Binding NewRequestCommand}" />
+                <Button DockPanel.Dock="Right" Content="Preview Email" Style="{StaticResource PrimaryButton}"
+                        Command="{Binding PreviewEmailCommand}" />
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</Window>

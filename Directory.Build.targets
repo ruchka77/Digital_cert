@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup>
+    <!-- The WPF SDK removes this implicit using, so it is restored after the SDK props are evaluated. -->
+    <Using Include="System.IO" />
+  </ItemGroup>
+</Project>
