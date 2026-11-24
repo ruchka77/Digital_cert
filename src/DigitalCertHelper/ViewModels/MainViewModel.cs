@@ -49,7 +49,7 @@ public sealed partial class MainViewModel(
     private bool _isBusy;
 
     [ObservableProperty]
-    private string _status = "Select a certificate to begin.";
+    private string _status = "בחר קובץ כדי להתחיל.";
 
     public ObservableCollection<DirectoryUser> Suggestions { get; } = [];
 
@@ -73,7 +73,7 @@ public sealed partial class MainViewModel(
     {
         try
         {
-            var path = dialogs.PickFile("Select Certificate", certificates.FileDialogFilter);
+            var path = dialogs.PickFile("בחירת קובץ", certificates.FileDialogFilter);
             if (path is null)
             {
                 logger.LogInformation("Certificate selection cancelled");
@@ -81,7 +81,7 @@ public sealed partial class MainViewModel(
             }
 
             Certificate = certificates.Load(path);
-            Status = "Certificate selected. Search for the user.";
+            Status = "הקובץ נבחר. חפש את המשתמש.";
             logger.LogInformation(
                 "Certificate selected: {FileName}, may contain private key: {MayContainPrivateKey}",
                 Certificate.FileName, Certificate.MayContainPrivateKey);
@@ -120,7 +120,7 @@ public sealed partial class MainViewModel(
 
             Replace(Suggestions, result.Users.Take(MaxSuggestions));
             IsSuggestionsOpen = Suggestions.Count > 0;
-            Status = Suggestions.Count == 0 ? "No matching users found." : "Choose a suggestion or press Search.";
+            Status = Suggestions.Count == 0 ? "לא נמצאו משתמשים מתאימים." : "בחר הצעה או לחץ על 'חיפוש'.";
         }
         catch (OperationCanceledException)
         {
@@ -183,18 +183,18 @@ public sealed partial class MainViewModel(
             SelectedUser = null;
             HighlightedUser = null;
             Results.Clear();
-            Status = "Searching…";
+            Status = "מחפש…";
             var result = await directory.SearchAsync(term, options.MaxResults, CancellationToken.None);
             Replace(Results, result.Users);
             Status = Results.Count == 0
-                ? "User not found in Active Directory."
+                ? "המשתמש לא נמצא ב-Active Directory."
                 : result.IsTruncated
-                    ? $"Showing the first {Results.Count} users. Refine the search to see fewer."
-                    : $"{Results.Count} user(s) found. Double-click a user to select.";
+                    ? $"מוצגים {Results.Count} המשתמשים הראשונים. צמצם את החיפוש."
+                    : $"נמצאו {Results.Count} משתמשים. לחץ פעמיים על משתמש כדי לבחור אותו.";
         }
         catch (Exception ex)
         {
-            Status = "Search failed.";
+            Status = "החיפוש נכשל.";
             errors.Handle(ex, "Search users");
         }
         finally
@@ -216,7 +216,7 @@ public sealed partial class MainViewModel(
     {
         HighlightedUser = user;
         SelectedUser = user;
-        Status = "User selected. Preview the email to continue.";
+        Status = "המשתמש נבחר. לחץ על 'תצוגה מקדימה' כדי להמשיך.";
         logger.LogInformation("User selected: {ObjectId}", user.ObjectId);
     }
 
@@ -232,13 +232,13 @@ public sealed partial class MainViewModel(
         IsBusy = true;
         try
         {
-            Status = "Validating…";
+            Status = "מאמת…";
             var certificate = certificates.Load(Certificate.FullPath);
             var result = await validation.ValidateAsync(
                 SelectedUser is null ? [] : [SelectedUser], CancellationToken.None);
             if (!result.IsValid || result.User is not { } user)
             {
-                Status = "Validation failed.";
+                Status = "האימות נכשל.";
                 dialogs.ShowError(string.Join(Environment.NewLine, result.Errors));
                 return;
             }
@@ -251,12 +251,12 @@ public sealed partial class MainViewModel(
             var created = dialogs.ShowEmailPreview(draft);
             logger.LogInformation("Email preview closed; draft created: {Created}", created);
             Status = created
-                ? "The draft is open in Outlook. Review it and click Send there."
-                : "Make any corrections, then preview the email again.";
+                ? "ההודעה נפתחה ב-Outlook. בדוק אותה ושלח אותה משם באופן ידני."
+                : "בצע את התיקונים הנדרשים ולחץ שוב על 'תצוגה מקדימה'.";
         }
         catch (Exception ex)
         {
-            Status = "The email could not be prepared.";
+            Status = "לא ניתן היה להכין את ההודעה.";
             errors.Handle(ex, "Prepare email");
         }
         finally
@@ -274,7 +274,7 @@ public sealed partial class MainViewModel(
         HighlightedUser = null;
         SelectedUser = null;
         Certificate = null;
-        Status = "Select a certificate to begin.";
+        Status = "בחר קובץ כדי להתחיל.";
     }
 
     private void SetSearchText(string text)

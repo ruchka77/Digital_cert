@@ -1,22 +1,25 @@
 <Window x:Class="DigitalCertHelper.Views.EmailPreviewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Email Preview" Width="680" Height="520" MinWidth="520" MinHeight="420"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
-        Background="#F2F4F7" FontFamily="Segoe UI" FontSize="13">
+        Title="תצוגה מקדימה של ההודעה"
+        Width="640" Height="520" MinWidth="520" MinHeight="440"
+        FlowDirection="RightToLeft" xml:lang="he-IL"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding BackCommand}" />
     </Window.InputBindings>
-    <DockPanel Margin="20">
-        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
-            <Button Content="Back" Command="{Binding BackCommand}" />
-            <Button DockPanel.Dock="Right" Content="Create Outlook Draft" Style="{StaticResource PrimaryButton}"
-                    Command="{Binding CreateOutlookDraftCommand}" />
-            <ProgressBar DockPanel.Dock="Right" IsIndeterminate="True" Width="110" Height="12" Margin="0,0,16,0"
-                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
-        </DockPanel>
 
-        <Border Style="{StaticResource Card}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="פרטי ההודעה" Padding="6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -29,26 +32,43 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Text="Recipient" Style="{StaticResource FieldLabel}" />
-                <TextBox Grid.Column="1" Style="{StaticResource ReadOnlyField}" AutomationProperties.Name="Recipient"
-                         Text="{Binding Draft.Recipient, Mode=OneWay}" />
-                <TextBlock Grid.Row="1" Text="Subject" Style="{StaticResource FieldLabel}" />
-                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ReadOnlyField}" FlowDirection="RightToLeft"
-                         AutomationProperties.Name="Subject" Text="{Binding Draft.Subject, Mode=OneWay}" />
-                <TextBlock Grid.Row="2" Text="Body" Style="{StaticResource FieldLabel}" />
-                <TextBox Grid.Row="2" Grid.Column="1" IsReadOnly="True" TextWrapping="Wrap" FlowDirection="RightToLeft"
-                         VerticalScrollBarVisibility="Auto" Padding="10" Margin="0,0,0,10" FontSize="14"
-                         AutomationProperties.Name="Email body" Text="{Binding Draft.Body, Mode=OneWay}" />
-                <TextBlock Grid.Row="3" Text="Attachment" Style="{StaticResource FieldLabel}" />
-                <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource ReadOnlyField}"
-                         AutomationProperties.Name="Attachment"
-                         Text="{Binding Draft.Attachment.FullPath, Mode=OneWay}" />
-                <Border Grid.Row="4" Grid.ColumnSpan="2" Style="{StaticResource WarningPanel}"
-                        Visibility="{Binding Draft.Attachment.MayContainPrivateKey, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock TextWrapping="Wrap"
-                               Text="Warning: the attachment may contain a private key. Make sure it is approved for sending by email." />
-                </Border>
+
+                <TextBlock Text="נמען:" Margin="0,0,10,6" />
+                <TextBox Grid.Column="1" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                         FlowDirection="LeftToRight" TextAlignment="Right" Margin="0,0,0,6"
+                         Text="{Binding Draft.Recipient, Mode=OneWay}" AutomationProperties.Name="נמען" />
+                <TextBlock Grid.Row="1" Text="נושא:" Margin="0,0,10,6" />
+                <TextBox Grid.Row="1" Grid.Column="1" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                         TextWrapping="Wrap" Margin="0,0,0,6"
+                         Text="{Binding Draft.Subject, Mode=OneWay}" AutomationProperties.Name="נושא" />
+                <TextBlock Grid.Row="2" Text="תוכן ההודעה:" Margin="0,0,10,6" />
+                <TextBox Grid.Row="2" Grid.Column="1" IsReadOnly="True" TextWrapping="Wrap" Padding="6" Margin="0,0,0,6"
+                         VerticalScrollBarVisibility="Auto"
+                         Text="{Binding Draft.Body, Mode=OneWay}" AutomationProperties.Name="תוכן ההודעה" />
+                <TextBlock Grid.Row="3" Text="קובץ מצורף:" Margin="0,0,10,0" />
+                <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                         FlowDirection="LeftToRight" TextAlignment="Right" TextWrapping="Wrap"
+                         Text="{Binding Draft.Attachment.FullPath, Mode=OneWay}" AutomationProperties.Name="קובץ מצורף" />
+                <TextBlock Grid.Row="4" Grid.ColumnSpan="2" Foreground="DarkRed" TextWrapping="Wrap" Margin="0,6,0,0"
+                           Visibility="{Binding Draft.Attachment.MayContainPrivateKey, Converter={StaticResource BoolToVisibility}}"
+                           Text="אזהרה: הקובץ המצורף עשוי להכיל מפתח פרטי. ודא שמותר לשלוח אותו בדואר אלקטרוני." />
             </Grid>
-        </Border>
-    </DockPanel>
+        </GroupBox>
+
+        <TextBlock Grid.Row="1" Margin="0,8,0,8" TextWrapping="Wrap" FontWeight="Bold"
+                   Text="היישום אינו שולח דואר. לחיצה על 'פתח הודעת דואר חדשה' תפתח הודעה חדשה ב-Outlook. בדוק את ההודעה, ואם הכול תקין לחץ בעצמך על 'שלח' ב-Outlook." />
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Content="חזרה" Padding="16,4" Command="{Binding BackCommand}"
+                    ToolTip="חזרה למסך הראשי כדי לתקן פרטים" />
+            <Button Grid.Column="2" Content="פתח הודעת דואר חדשה" Padding="16,4"
+                    Command="{Binding CreateOutlookDraftCommand}"
+                    ToolTip="פותח הודעה חדשה ב-Outlook לבדיקה. ההודעה אינה נשלחת אוטומטית." />
+        </Grid>
+    </Grid>
 </Window>

@@ -6,18 +6,19 @@ using DigitalCertHelper.Models;
 
 namespace DigitalCertHelper.Services;
 
+/// <summary>Checks the selected file. Any file type is accepted; only existence, access and size are checked.</summary>
 public sealed class CertificateService(CertificateOptions options) : ICertificateService
 {
+    private const int KeyScanBytes = 64 * 1024;
     private static readonly string[] KeyContainerExtensions = [".pfx", ".p12"];
 
-    public string FileDialogFilter =>
-        "Certificate files|" + string.Join(';', options.AllowedExtensions.Select(e => "*" + e));
+    public string FileDialogFilter => "כל הקבצים (*.*)|*.*";
 
     public CertificateFile Load(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new AppException(ErrorCode.CertificateInvalid, "No certificate file was selected.");
+            throw new AppException(ErrorCode.CertificateInvalid, "לא נבחר קובץ.");
         }
 
         try
@@ -28,37 +29,33 @@ public sealed class CertificateService(CertificateOptions options) : ICertificat
                 throw new AppException(ErrorCode.CertificateMissing);
             }
 
-            if (!options.AllowedExtensions.Contains(file.Extension, StringComparer.OrdinalIgnoreCase))
-            {
-                throw new AppException(
-                    ErrorCode.CertificateInvalid,
-                    "The selected file type is not supported. Supported types: "
-                        + string.Join(", ", options.AllowedExtensions));
-            }
-
             if (file.Length == 0)
             {
-                throw new AppException(ErrorCode.CertificateInvalid, "The selected certificate file is empty.");
+                throw new AppException(ErrorCode.CertificateInvalid, "הקובץ שנבחר ריק.");
             }
 
             if (file.Length > options.MaxFileSizeMegabytes * 1024L * 1024L)
             {
                 throw new AppException(
                     ErrorCode.CertificateInvalid,
-                    $"The selected file is larger than {options.MaxFileSizeMegabytes} MB.");
+                    $"הקובץ שנבחר גדול מ-{options.MaxFileSizeMegabytes} MB.");
             }
 
-            // Reading also proves that the current user can access the file.
-            var content = Encoding.ASCII.GetString(File.ReadAllBytes(file.FullName));
+            // Reading the start of the file also proves that the current user can access it.
+            var buffer = new byte[Math.Min(file.Length, KeyScanBytes)];
+            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                stream.ReadExactly(buffer);
+            }
+
             var mayContainKey =
                 KeyContainerExtensions.Contains(file.Extension, StringComparer.OrdinalIgnoreCase)
-                || content.Contains("PRIVATE KEY-----", StringComparison.Ordinal);
+                || Encoding.ASCII.GetString(buffer).Contains("PRIVATE KEY-----", StringComparison.Ordinal);
             return new CertificateFile(file.FullName, mayContainKey);
         }
         catch (Exception ex) when (ex is UnauthorizedAccessException or SecurityException)
         {
-            throw new AppException(
-                ErrorCode.AccessDenied, "You do not have permission to read the selected certificate file.", ex);
+            throw new AppException(ErrorCode.AccessDenied, "אין לך הרשאה לקרוא את הקובץ שנבחר.", ex);
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
         {
@@ -68,7 +65,7 @@ public sealed class CertificateService(CertificateOptions options) : ICertificat
         {
             throw new AppException(
                 ErrorCode.CertificateInvalid,
-                "The certificate file could not be read. It may be in use, or on a disconnected drive.",
+                "לא ניתן לקרוא את הקובץ. ייתכן שהוא בשימוש או נמצא בכונן שנותק.",
                 ex);
         }
     }

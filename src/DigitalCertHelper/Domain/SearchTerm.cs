@@ -19,15 +19,15 @@ public static class SearchTerm
 
         if (term.Length < MinimumLength)
         {
-            error = $"Enter at least {MinimumLength} characters of the user's first or last name.";
+            error = $"יש להזין לפחות {MinimumLength} תווים משם הפרטי או משם המשפחה של המשתמש.";
         }
         else if (term.Length > MaximumLength)
         {
-            error = $"The search text cannot exceed {MaximumLength} characters.";
+            error = $"טקסט החיפוש לא יכול לעלות על {MaximumLength} תווים.";
         }
         else if (term.Any(char.IsControl) || !term.Any(char.IsLetterOrDigit))
         {
-            error = "The search text contains invalid characters.";
+            error = "טקסט החיפוש מכיל תווים לא תקינים.";
         }
 
         return error is null;

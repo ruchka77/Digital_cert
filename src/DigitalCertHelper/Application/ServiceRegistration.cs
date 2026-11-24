@@ -2,26 +2,24 @@ using DigitalCertHelper.Infrastructure;
 using DigitalCertHelper.Models;
 using DigitalCertHelper.Services;
 using DigitalCertHelper.ViewModels;
-using DigitalCertHelper.Views;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace DigitalCertHelper.Application;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddDigitalCertHelper(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>
+    /// Registers only what the application uses. Registration creates nothing: the Active Directory and Outlook
+    /// services are constructed on first use (a search, or creating a message), and do no work until then.
+    /// </summary>
+    public static IServiceCollection AddDigitalCertHelper(
+        this IServiceCollection services, AppSettings settings, ILoggerFactory loggers)
     {
-        var directory = configuration.GetSection("Directory").Get<DirectoryOptions>() ?? new DirectoryOptions();
-        directory.Validate();
-        var certificate = configuration.GetSection("Certificate").Get<CertificateOptions>() ?? new CertificateOptions();
-        certificate.Validate();
-
-        services.AddLogging(builder => builder.ClearProviders().AddSerilog());
-        services.AddSingleton(directory);
-        services.AddSingleton(certificate);
+        services.AddSingleton(loggers);
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(settings.Directory);
+        services.AddSingleton(settings.Certificate);
 
         services.AddSingleton<IDirectoryService, ActiveDirectoryService>();
         services.AddSingleton<IOutlookService, OutlookService>();
@@ -33,7 +31,6 @@ public static class ServiceRegistration
         services.AddSingleton<Func<EmailDraft, EmailPreviewViewModel>>(provider => draft =>
             ActivatorUtilities.CreateInstance<EmailPreviewViewModel>(provider, draft));
         services.AddSingleton<MainViewModel>();
-        services.AddSingleton<MainWindow>();
         return services;
     }
 }

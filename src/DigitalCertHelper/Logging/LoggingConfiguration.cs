@@ -1,11 +1,21 @@
 using DigitalCertHelper.Application;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
+using Serilog.Extensions.Logging;
 
 namespace DigitalCertHelper.Logging;
 
 public static class LoggingConfiguration
 {
+    /// <summary>Runs on a background thread (see <see cref="BackgroundLoggerFactory"/>).</summary>
+    public static ILoggerFactory CreateFactory(LoggingOptions options)
+    {
+        var logger = CreateLogger(options);
+        logger.Information("Application starting, version {Version}", typeof(LoggingConfiguration).Assembly.GetName().Version);
+        return new SerilogLoggerFactory(logger, dispose: true);
+    }
+
     public static Logger CreateLogger(LoggingOptions options)
     {
         var directory = ResolveDirectory(options.Directory);

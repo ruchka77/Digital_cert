@@ -47,6 +47,18 @@ and Active Directory access need. Instead the executable is compressed, debug sy
 unused runtime files are excluded (`ExcludeUnusedRuntimeFiles` in the project file). Log stack traces therefore
 show method names without line numbers.
 
+### Uncompressed build (less memory, not for git)
+
+Compression keeps the file under GitHub's limit but costs about 90 MB of memory and 130 ms at every start,
+because the files are unpacked in memory. If the executable is deployed by Intune or a file share instead of git,
+this variant is smaller in memory (about 100 MB less working set) and faster, but the file is about 120 MB:
+
+```powershell
+dotnet publish -c Release -p:EnableCompressionInSingleFile=false
+```
+
+See [PERFORMANCE.md](PERFORMANCE.md) for the measurements.
+
 ## Committing the executable
 
 `.gitignore` allows that one file from `artifacts`. GitHub warns above 50 MB and rejects files above 100 MB.

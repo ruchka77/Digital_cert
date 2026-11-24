@@ -24,17 +24,14 @@ public sealed class DirectoryOptions
 
 public sealed class CertificateOptions
 {
-    // No default entries: the configuration binder appends to existing collections.
-    public string[] AllowedExtensions { get; set; } = [];
+    /// <summary>Any file type may be attached; only the size is limited.</summary>
     public int MaxFileSizeMegabytes { get; set; } = 10;
 
     public void Validate()
     {
-        if (AllowedExtensions.Length == 0
-            || AllowedExtensions.Any(e => e.Length < 2 || e[0] != '.' || !e.Skip(1).All(char.IsAsciiLetterOrDigit))
-            || MaxFileSizeMegabytes is < 1 or > 100)
+        if (MaxFileSizeMegabytes is < 1 or > 100)
         {
-            throw new InvalidOperationException("A Certificate setting is invalid.");
+            throw new InvalidOperationException("Certificate:MaxFileSizeMegabytes is out of range.");
         }
     }
 }

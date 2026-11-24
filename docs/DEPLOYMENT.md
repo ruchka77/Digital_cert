@@ -17,17 +17,21 @@ Files), they go to `%LOCALAPPDATA%\DigitalCertHelper\Logs`. To keep them beside 
 
 ## Acceptance test on a domain workstation
 
+- [ ] The windows open right-to-left, and every label, button and message is in Hebrew
+- [ ] The file picker shows all files, and a non-certificate file (for example a PDF) can be attached
 - [ ] Suggestions appear for Hebrew and English partial names
 - [ ] The User Logon Name shown is the value required as תעודת זהות
 - [ ] A disabled account is refused
 - [ ] The draft has the correct recipient, subject, right-to-left body and attachment
-- [ ] The draft opens both when Outlook is already running and when it is closed
+- [ ] 'פתח הודעת דואר חדשה' opens a new message in Outlook both when Outlook is already running and when it is closed,
+      and nothing is sent until Send is clicked in Outlook
 - [ ] A reviewed test message arrives with its attachment (some gateways remove `.cer`/`.crt`)
 - [ ] Disconnecting the network gives a clear error message
 
 ## Updating and removing
 
-To update, close the application and replace the executable, keeping a customized `appsettings.json`.
+To update, close the application and replace the executable, keeping a customized `appsettings.json`
+(compare it with the sample: settings that no longer exist are ignored).
 To remove, delete the folder, the shortcut and `%LOCALAPPDATA%\DigitalCertHelper`.
 
 On first start, the executable extracts its native libraries to `%TEMP%\.net\DigitalCertHelper`. If application

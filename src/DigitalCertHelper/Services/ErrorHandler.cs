@@ -25,21 +25,21 @@ public sealed class ErrorHandler(IDialogService dialogs, ILogger<ErrorHandler> l
     private static string DefaultMessage(ErrorCode code) => code switch
     {
         ErrorCode.DirectoryUnavailable =>
-            "Active Directory could not be reached. Check that you are connected to the organization's network and try again.",
+            "לא ניתן להתחבר ל-Active Directory. ודא שהמחשב מחובר לרשת הארגונית ונסה שוב.",
         ErrorCode.DirectoryAccessDenied =>
-            "Access to Active Directory was denied. Sign in with your domain account, or contact your administrator.",
+            "הגישה ל-Active Directory נדחתה. התחבר עם חשבון הדומיין שלך או פנה למנהל המערכת.",
         ErrorCode.DirectoryQueryFailed =>
-            "The Active Directory search could not be completed. Try again or contact your administrator.",
+            "החיפוש ב-Active Directory לא הושלם. נסה שוב או פנה למנהל המערכת.",
         ErrorCode.OutlookNotInstalled =>
-            "Classic Microsoft Outlook is not installed on this computer.",
+            "Microsoft Outlook (הגרסה הקלאסית) אינו מותקן במחשב זה.",
         ErrorCode.OutlookUnavailable =>
-            "Outlook is not responding. Close any open Outlook dialogs, make sure Outlook and this application are not running as administrator, and try again.",
+            "Outlook אינו מגיב. סגור חלונות דו-שיח פתוחים ב-Outlook, ודא ש-Outlook והיישום אינם פועלים כמנהל, ונסה שוב.",
         ErrorCode.OutlookDraftFailed =>
-            "The Outlook draft could not be created. Make sure an Outlook profile is configured and try again.",
+            "לא ניתן ליצור את הודעת הדואר ב-Outlook. ודא שהוגדר פרופיל Outlook ונסה שוב.",
         ErrorCode.CertificateMissing =>
-            "The certificate file no longer exists. Select the certificate again.",
-        ErrorCode.CertificateInvalid => "The certificate file is not valid.",
-        ErrorCode.AccessDenied => "You do not have permission to perform this action.",
-        _ => "An unexpected error occurred. Details were written to the log; contact your administrator.",
+            "הקובץ שנבחר אינו קיים עוד. בחר את הקובץ מחדש.",
+        ErrorCode.CertificateInvalid => "הקובץ שנבחר אינו תקין.",
+        ErrorCode.AccessDenied => "אין לך הרשאה לבצע פעולה זו.",
+        _ => "אירעה שגיאה לא צפויה. הפרטים נרשמו ביומן; פנה למנהל המערכת.",
     };
 }

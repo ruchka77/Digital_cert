@@ -74,11 +74,11 @@ public sealed class CoreTests
     }
 
     [Theory]
-    [InlineData("", "x", true, "Display Name is missing.")]
-    [InlineData("x", " ", true, "User Logon Name is missing.")]
-    [InlineData("x", "x", false, "Account is disabled.")]
-    [InlineData("x", "x", null, "The account status could not be verified.")]
-    [InlineData("x\r\ny", "x", true, "Display Name contains invalid characters.")]
+    [InlineData("", "x", true, "שם התצוגה (Display Name) חסר.")]
+    [InlineData("x", " ", true, "שם הכניסה (User Logon Name) חסר.")]
+    [InlineData("x", "x", false, "החשבון מושבת.")]
+    [InlineData("x", "x", null, "לא ניתן לאמת את מצב החשבון.")]
+    [InlineData("x\r\ny", "x", true, "שם התצוגה (Display Name) מכיל תווים לא תקינים.")]
     public async Task Invalid_users_are_rejected(string name, string logon, bool? enabled, string expected)
     {
         var user = Sample.User(name, logon, enabled);
@@ -91,12 +91,12 @@ public sealed class CoreTests
     public async Task Exactly_one_existing_user_is_required()
     {
         var service = Validator(new FakeDirectory());
-        Assert.Equal(["No user selected."], (await service.ValidateAsync([], default)).Errors);
+        Assert.Equal(["לא נבחר משתמש."], (await service.ValidateAsync([], default)).Errors);
         Assert.Equal(
-            ["Select exactly one user."],
+            ["יש לבחור משתמש אחד בלבד."],
             (await service.ValidateAsync([Sample.User(), Sample.User()], default)).Errors);
         Assert.Equal(
-            ["User not found in Active Directory."],
+            ["המשתמש לא נמצא ב-Active Directory."],
             (await service.ValidateAsync([Sample.User()], default)).Errors);
     }
 
@@ -106,7 +106,7 @@ public sealed class CoreTests
         var folder = Directory.CreateTempSubdirectory();
         try
         {
-            var service = new CertificateService(new CertificateOptions { AllowedExtensions = [".cer", ".pem", ".pfx"] });
+            var service = new CertificateService(new CertificateOptions());
             string Create(string name, string content)
             {
                 var path = Path.Combine(folder.FullName, name);
@@ -117,7 +117,13 @@ public sealed class CoreTests
             Assert.False(service.Load(Create("a.CER", "x")).MayContainPrivateKey);
             Assert.True(service.Load(Create("a.pfx", "x")).MayContainPrivateKey);
             Assert.True(service.Load(Create("a.pem", "-----BEGIN RSA PRIVATE KEY-----")).MayContainPrivateKey);
-            Assert.Equal(ErrorCode.CertificateInvalid, Code(() => service.Load(Create("a.exe", "x"))));
+            // Any file type can be attached.
+            foreach (var name in new[] { "a.pdf", "a.docx", "a.xlsx", "a.txt", "a.crt", "a.exe", "noextension" })
+            {
+                Assert.False(service.Load(Create(name, "x")).MayContainPrivateKey);
+            }
+
+            Assert.Equal("כל הקבצים (*.*)|*.*", service.FileDialogFilter);
             Assert.Equal(ErrorCode.CertificateInvalid, Code(() => service.Load(Create("b.cer", ""))));
             Assert.Equal(ErrorCode.CertificateMissing, Code(() => service.Load(Path.Combine(folder.FullName, "no.cer"))));
         }
@@ -149,6 +155,48 @@ public sealed class CoreTests
         Assert.Equal(ErrorCode.OutlookUnavailable, OutlookService.MapError(unchecked((int)0x80080005)));
     }
 
+    [Fact]
+    public void Every_user_message_is_in_hebrew()
+    {
+        var handler = new ErrorHandler(new FakeDialogs(), NullLogger<ErrorHandler>.Instance);
+        foreach (var code in Enum.GetValues<ErrorCode>())
+        {
+            Assert.Matches("[\u05D0-\u05EA]", handler.GetUserMessage(new AppException(code)));
+        }
+
+        foreach (var input in new[] { "a", new string('a', 100), "***" })
+        {
+            Assert.False(SearchTerm.TryNormalize(input, out _, out var error));
+            Assert.Matches("[\u05D0-\u05EA]", error);
+        }
+    }
+
+    [Fact]
+    public void Settings_use_built_in_defaults_unless_a_file_exists()
+    {
+        var folder = Directory.CreateTempSubdirectory();
+        try
+        {
+            var defaults = AppSettings.Load(folder.FullName);
+            Assert.Equal("moia.gov.il", defaults.Directory.Domain);
+            Assert.Equal(500, defaults.Directory.SuggestionDebounceMilliseconds);
+
+            // Case-insensitive; the removed AllowedExtensions setting of earlier versions is ignored.
+            File.WriteAllText(
+                Path.Combine(folder.FullName, "appsettings.json"),
+                """{ "directory": { "Domain": "example.org" }, "Certificate": { "AllowedExtensions": [".cer"], "MaxFileSizeMegabytes": 3 } }""");
+            var custom = AppSettings.Load(folder.FullName);
+            Assert.Equal("example.org", custom.Directory.Domain);
+            Assert.Equal(3, custom.Certificate.MaxFileSizeMegabytes);
+
+            File.WriteAllText(Path.Combine(folder.FullName, "appsettings.json"), """{ "Directory": { "Domain": "not a domain" } }""");
+            Assert.Throws<InvalidOperationException>(() => AppSettings.Load(folder.FullName));
+        }
+        finally
+        {
+            folder.Delete(true);
+        }
+    }
     /// <summary>Embedded interop types contain only the members the code uses, so a Send call would show up here.</summary>
     [Fact]
     public void Application_cannot_send_mail()

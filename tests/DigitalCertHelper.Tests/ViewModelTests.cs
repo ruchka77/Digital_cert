@@ -79,7 +79,7 @@ public sealed class ViewModelTests
         viewModel.SearchText = "Mich";
         await viewModel.SuggestionTask;
         Assert.Empty(_dialogs.Errors);
-        Assert.Contains("could not be reached", viewModel.Status);
+        Assert.Contains("לא ניתן להתחבר", viewModel.Status);
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public sealed class ViewModelTests
         Assert.Null(viewModel.SelectedUser);
 
         await viewModel.PreviewEmailCommand.ExecuteAsync(null);
-        Assert.Equal(["No user selected."], _dialogs.Errors);
+        Assert.Equal(["לא נבחר משתמש."], _dialogs.Errors);
         Assert.Null(_dialogs.Previewed);
     }
 

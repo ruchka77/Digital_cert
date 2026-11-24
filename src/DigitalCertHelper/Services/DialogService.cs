@@ -9,7 +9,9 @@ namespace DigitalCertHelper.Services;
 
 public sealed class DialogService(Func<EmailDraft, EmailPreviewViewModel> previewFactory) : IDialogService
 {
-    private const string Title = "Digital Certificate Renewal Helper";
+    private const string Title = "בקשת חידוש תעודה דיגיטלית";
+
+    private const MessageBoxOptions RightToLeft = MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign;
 
     /// <summary>The topmost dialog, even while another application (such as Outlook) has the focus.</summary>
     private static Window? Owner =>
@@ -20,7 +22,7 @@ public sealed class DialogService(Func<EmailDraft, EmailPreviewViewModel> previe
         var dialog = new OpenFileDialog
         {
             Title = title,
-            Filter = filter,
+            Filter = filter, // "All files": any file type may be attached
             CheckFileExists = true,
             Multiselect = false,
         };
@@ -31,11 +33,11 @@ public sealed class DialogService(Func<EmailDraft, EmailPreviewViewModel> previe
     {
         if (Owner is { } owner)
         {
-            MessageBox.Show(owner, message, Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(owner, message, Title, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK, RightToLeft);
         }
         else
         {
-            MessageBox.Show(message, Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(message, Title, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK, RightToLeft);
         }
     }
 
