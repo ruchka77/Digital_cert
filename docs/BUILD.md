@@ -36,3 +36,18 @@ For releases, use the script, which also runs the tests and clears old output fi
 ```powershell
 powershell -ExecutionPolicy Bypass -File build\publish.ps1
 ```
+
+## Output size
+
+Only `artifacts\DigitalCertHelper\DigitalCertHelper.exe` (about 58 MB) is for distribution. The `bin` and `obj`
+folders are intermediate and hold uncompressed copies of the .NET runtime; git ignores them, and they can be deleted.
+
+Trimming is not used: the SDK rejects it for WPF (NETSDK1168), and it would disable the COM support that Outlook
+and Active Directory access need. Instead the executable is compressed, debug symbols are omitted, and a few
+unused runtime files are excluded (`ExcludeUnusedRuntimeFiles` in the project file). Log stack traces therefore
+show method names without line numbers.
+
+## Committing the executable
+
+`.gitignore` allows that one file from `artifacts`. GitHub warns above 50 MB and rejects files above 100 MB.
+Every committed version permanently adds about 55 MB to the repository, so prefer GitHub Releases for new versions.

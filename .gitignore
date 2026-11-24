@@ -5,5 +5,10 @@ obj/
 *.suo
 
 Logs/
-artifacts/
 TestResults/
+
+# From artifacts, only the published executable is committed.
+/artifacts/*
+!/artifacts/DigitalCertHelper/
+/artifacts/DigitalCertHelper/*
+!/artifacts/DigitalCertHelper/DigitalCertHelper.exe

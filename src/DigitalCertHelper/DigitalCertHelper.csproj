@@ -44,4 +44,17 @@
     </ItemGroup>
   </Target>
 
+  <!-- Drop runtime files this application never loads (WPF cannot be trimmed). Matched by file name. -->
+  <Target Name="ExcludeUnusedRuntimeFiles" AfterTargets="ComputeResolvedFilesToPublishList" Condition="'$(SelfContained)' == 'true'">
+    <ItemGroup>
+      <_UnusedRuntimeFile Include="System.Diagnostics.EventLog.Messages.dll" />
+      <!-- WPF ribbon, and themes of Windows XP to 7 -->
+      <_UnusedRuntimeFile Include="System.Windows.Controls.Ribbon.dll;PresentationFramework.Luna.dll;PresentationFramework.Royale.dll;PresentationFramework.Aero.dll" />
+      <_PublishedBefore Include="@(ResolvedFileToPublish)" />
+      <ResolvedFileToPublish Remove="@(_UnusedRuntimeFile)" MatchOnMetadata="Filename" />
+      <_PublishExcluded Include="@(_PublishedBefore)" Exclude="@(ResolvedFileToPublish)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Excluded from publish: @(_PublishExcluded->'%(Filename)', ', ')" />
+  </Target>
+
 </Project>
