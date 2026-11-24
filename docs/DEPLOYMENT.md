@@ -2,8 +2,9 @@
 
 1. Run `build\publish.ps1` (see [BUILD.md](BUILD.md)).
 2. Sign `DigitalCertHelper.exe` with the organization's code-signing certificate.
-3. Copy `DigitalCertHelper.exe` and `appsettings.json` to, for example,
-   `C:\Program Files\DigitalCertHelper`, using Intune, SCCM or Group Policy. No .NET installation is needed.
+3. Copy `DigitalCertHelper.exe` to, for example, `C:\Program Files\DigitalCertHelper`, using Intune, SCCM
+   or Group Policy. No other file and no .NET installation is needed. To override settings, also copy a
+   complete, edited `appsettings.json` (from `src\DigitalCertHelper`) beside it.
 4. Create a Start menu shortcut. Do not run the application as administrator.
 
 Keep the folder read-only for standard users, so that the executable and configuration cannot be altered.
@@ -29,8 +30,12 @@ Files), they go to `%LOCALAPPDATA%\DigitalCertHelper\Logs`. To keep them beside 
 To update, close the application and replace the executable, keeping a customized `appsettings.json`.
 To remove, delete the folder, the shortcut and `%LOCALAPPDATA%\DigitalCertHelper`.
 
+On first start, the executable extracts its native libraries to `%TEMP%\.net\DigitalCertHelper`. If application
+control (AppLocker or WDAC) blocks DLLs there, allow them, or publish with
+`-p:PublishSingleFile=false -p:EnableCompressionInSingleFile=false` and deploy the whole output folder.
+
 ## .NET support
 
-Microsoft's support for .NET 8 ended on 10 November 2026. Because the package is self-contained, the runtime
-is part of it and is not serviced by Windows Update. Plan an upgrade to .NET 10 LTS: change `TargetFramework`
-in `Directory.Build.props`, update the Microsoft packages, test and republish.
+The application targets .NET 10 LTS, supported until November 2028. Because the package is self-contained, the
+runtime is part of it and is not serviced by Windows Update. Republish with the latest .NET 10 SDK and redeploy
+regularly (Microsoft releases security updates monthly).

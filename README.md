@@ -35,6 +35,8 @@ Tests are in `tests/DigitalCertHelper.Tests`.
 
 ## Configuration (`appsettings.json`)
 
+The defaults are embedded in the executable. A complete `appsettings.json` placed beside it replaces them.
+
 | Setting | Default | Meaning |
 |---|---|---|
 | `Directory:Domain` | `moia.gov.il` | Active Directory domain |

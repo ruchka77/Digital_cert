@@ -30,10 +30,7 @@ public partial class App : System.Windows.Application
 
         try
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
+            var configuration = LoadConfiguration();
             Log.Logger = LoggingConfiguration.CreateLogger(
                 configuration.GetSection("Logging").Get<LoggingOptions>() ?? new LoggingOptions());
             Log.Information("Application starting, version {Version}", typeof(App).Assembly.GetName().Version);
@@ -46,7 +43,7 @@ public partial class App : System.Windows.Application
         {
             Log.Fatal(ex, "Application failed to start");
             MessageBox.Show(
-                "The application could not start. Check that the installation and appsettings.json are intact, or contact your administrator.",
+                "The application could not start. Contact your administrator.",
                 "Digital Certificate Renewal Helper", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }
@@ -58,6 +55,21 @@ public partial class App : System.Windows.Application
         _services?.Dispose();
         Log.CloseAndFlush();
         base.OnExit(e);
+    }
+
+    /// <summary>
+    /// Uses appsettings.json beside the executable if present, otherwise the embedded defaults.
+    /// The two are not merged, because merging would keep list entries that an administrator removed.
+    /// </summary>
+    private static IConfiguration LoadConfiguration()
+    {
+        const string FileName = "appsettings.json";
+        var path = Path.Combine(AppContext.BaseDirectory, FileName);
+        using Stream stream = File.Exists(path)
+            ? File.OpenRead(path)
+            : typeof(App).Assembly.GetManifestResourceStream(FileName)
+                ?? throw new InvalidOperationException("The embedded configuration is missing.");
+        return new ConfigurationBuilder().AddJsonStream(stream).Build();
     }
 
     private void OnDispatcherException(object sender, DispatcherUnhandledExceptionEventArgs e)
